@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코인/주식 자동매매 챌린지</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 배경 애니메이션 요소들 */
+        .bg-shape {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.08;
+            animation: float 20s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        .shape-1 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        .shape-3 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            top: 50%;
+            right: 10%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-50px) scale(1.1);
+            }
+        }
+
+        /* 모던 슬라이드 스타일 */
+        .slide {
+            position: relative;
+            z-index: 10;
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 40px;
+            margin-bottom: 60px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* 첫 페이지 스타일 */
+        .intro {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 15px rgba(102, 126, 234, 0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            letter-spacing: -2px;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.3;
+            letter-spacing: -1px;
+        }
+
+        h3 {
+            font-size: 1.6em;
+            color: #a0aec0;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        h4 {
+            font-size: 1.3em;
+            color: #cbd5e0;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        p {
+            line-height: 1.8;
+            margin: 12px 0;
+            color: #e2e8f0;
+            font-size: 1.05em;
+        }
+
+        .profile {
+            line-height: 2;
+            font-size: 1.15em;
+            color: #e2e8f0;
+        }
+
+        /* 비교 그리드 */
+        .comparison {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .comparison-box {
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .comparison-box:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .comparison-box h3 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+
+        ul {
+            margin-left: 20px;
+            line-height: 2;
+            color: #e2e8f0;
+        }
+
+        ul li {
+            margin: 10px 0;
+        }
+
+        /* 하이라이트 박스들 */
+        .highlight {
+            background: rgba(255, 193, 7, 0.15);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+            backdrop-filter: blur(10px);
+        }
+
+        .warning {
+            background: rgba(220, 53, 69, 0.15);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #dc3545;
+            backdrop-filter: blur(10px);
+        }
+
+        .success {
+            background: rgba(40, 167, 69, 0.15);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+            backdrop-filter: blur(10px);
+        }
+
+        .info {
+            background: rgba(23, 162, 184, 0.15);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 코인/주식 아이템 */
+        .coin-item, .stock-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .coin-item:hover, .stock-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .coin-item h4, .stock-item h4 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-top: 0;
+        }
+
+        /* 두뇌 섹션 */
+        .brain-section {
+            margin: 20px 0;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brain-section h4 {
+            color: #f093fb;
+            margin-bottom: 15px;
+        }
+
+        /* 그리드 섹션 */
+        .grid-section {
+            background: rgba(79, 172, 254, 0.15);
+            padding: 30px;
+            border-radius: 20px;
+            margin-top: 25px;
+            border: 1px solid rgba(79, 172, 254, 0.3);
+        }
+
+        /* QR 코드 이미지 스타일 */
+        img {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        a {
+            color: #667eea;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.5em;
+            }
+
+            h2 {
+                font-size: 1.8em;
+            }
+
+            .slide {
+                padding: 40px 25px;
+                min-height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 배경 도형들 -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <div class="container">
+        <!-- 슬라이드 1: 표지 -->
+        <div class="slide intro">
+            <div class="badge">LIVE 무료 방송</div>
+            <h1>챌린지 무료 라이브 방송</h1>
+            <h2 style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; margin-bottom: 30px;">코인/주식 자동매매</h2>
+        </div>
+
+        <!-- 슬라이드 2: 지식공유자 소개 -->
+        <div class="slide">
+            <h2>지식공유자 소개</h2>
+            <div class="profile">
+                <p><strong style="font-size: 1.2em;">이름: 코딩강사</strong></p>
+                <p>👨‍💻 전 개발자 겸 강사, 수익화 웹앱에 관심이 많음</p>
+                <p>🎯 <strong>코인/주식 자동매매를 통한 실제 월100만원 만들기 미션 수행 중</strong></p>
+                <p>💡 그외 관심분야:</p>
+                <ul>
+                    <li>AI 콘텐츠를 통한 유튜브 수익화</li>
+                    <li>자동화 (make, n8n)</li>
+                    <li>Vibe 코딩</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 슬라이드 3: 코인과 주식 시장의 특징 -->
+        <div class="slide">
+            <h2>코인과 주식 시장의 특징</h2>
+            <div class="comparison">
+                <div class="comparison-box">
+                    <h3>🪙 코인</h3>
+                    <ul>
+                        <li><strong>변동성이 심함</strong></li>
+                        <li>대장주(비트코인)에 따라 움직임</li>
+                        <li>비트코인, 스테이블코인이 점차 안정자산으로 인정받음</li>
+                        <li><strong>24시간 거래 가능</strong></li>
+                        <li>거래할 만한 코인 수가 상대적으로 적음 (10개 내외 - 시총 10조 이상)</li>
+                        <li>거래수수료만 존재 (0.04% ~ 0.05%)</li>
+                        <li><strong>한국 2대 가상자산 거래소:</strong> 업비트, 빗썸</li>
+                    </ul>
+                </div>
+                <div class="comparison-box">
+                    <h3>📈 주식</h3>
+                    <ul>
+                        <li>대형/중형/소형에 따라 다름</li>
+                        <li>코스피/코스닥 지수에 따라 움직임</li>
+                        <li>우량주(대형주) 중심으로 안정자산으로 인정받음</li>
+                        <li><strong>영업일 기준 (오전9시~오후3시반) 매매 가능</strong> (대체거래소 제외)</li>
+                        <li>코스피/코스닥 약 3000개의 종목이 거래 가능함</li>
+                        <li>거래 수수료(제세금): 매수시 0.015%, 매도시 0.345%</li>
+                        <li><strong>한국 5대 증권사:</strong> 키움, 미래에셋, KB, 토스, 삼성</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 슬라이드 4: 종목별 성향 - 코인 -->
+        <div class="slide">
+            <h2>종목별 성향 - 코인 (5대 코인)</h2>
+            
+            <div class="coin-item">
+                <h4>₿ 비트코인 (BTC)</h4>
+                <p>변동성이 심함. 50% 떡락 가능. 장기로 보면 우상향.</p>
+            </div>
+            
+            <div class="coin-item">
+                <h4>💎 리플 (XRP)</h4>
+                <p>변동성 중간. 박스권(횡보) 경향 있음.</p>
+            </div>
+            
+            <div class="coin-item">
+                <h4>☀️ 솔라나 (SOL)</h4>
+                <p>변동성 중간. 박스권 경향 있음.</p>
+            </div>
+            
+            <div class="coin-item">
+                <h4>🐕 도지코인 (DOGE)</h4>
+                <p>변동성 중간. 박스권 경향 높음.</p>
+            </div>
+            
+            <div class="coin-item">
+                <h4>💵 테더 (USDT)</h4>
+                <p>1달러 가치에 수렴. (스테이블) 환헷지 전략에 용이함.</p>
+            </div>
+        </div>
+
+        <!-- 슬라이드 5: 종목별 성향 - 주식 -->
+        <div class="slide">
+            <h2>종목별 성향 - 주식</h2>
+            
+            <div class="stock-item">
+                <h4>📊 대형주 (우량주)</h4>
+                <p>탄탄한 영업이익과 배당률을 기준으로, 52주 평균가 대비 30%이하 진입 가능.</p>
+                <p><strong>1년 정도 기다려야 됨. 장투.</strong></p>
+            </div>
+            
+            <div class="stock-item">
+                <h4>📈 중형주, 소형주 (테마주)</h4>
+                <p>120이평선, 20이평선, 5이평선을 보고, 이슈(뉴스)와 가격대를 보고 진입 가능.</p>
+                <p><strong>1일~20일 정도 기다림. 스윙.</strong></p>
+            </div>
+            
+            <div class="warning">
+                <h4>⚠️ 주의사항</h4>
+                <ul>
+                    <li><strong>동전주 제외:</strong> 주식가격 1000원 이하</li>
+                    <li><strong>시가총액:</strong> 500억 이상</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 슬라이드 6: 투자 전략 -->
+        <div class="slide">
+            <h2>투자 전략</h2>
+            
+            <h3>🪙 코인 전략</h3>
+
+            <div class="success">
+                <h4>1. 변동성을 이용한 전략</h4>
+                <p>코인의 높은 변동성을 활용하여 단기 매매로 수익 창출</p>
+            </div>
+
+            <div class="success">
+                <h4>2. 박스권(횡보)을 이용한 전략</h4>
+                <p>일정 가격 구간에서 반복 매매하여 안정적인 수익 확보</p>
+            </div>
+
+            <div class="success">
+                <h4>3. 바닥권을 잡고 진입하는 전략</h4>
+                <p>충분히 하락한 구간에서 진입하여 반등 수익 기대</p>
+            </div>
+            
+            <h3>📈 주식 전략</h3>
+            <div class="info">
+                <h4>1. 우량주</h4>
+                <p>재무제표와 바닥권을 이용한 전략</p>
+            </div>
+            
+            <div class="info">
+                <h4>2. 중형, 소형 (테마주)</h4>
+                <p>이슈(뉴스)와 이평선 정배열에서 주가상승률 10%에서 관심종목추가 후,</p>
+                <p>눌림목에서 다시 5(20,120)이평선 돌파시 매입.</p>
+            </div>
+        </div>
+
+        <!-- 슬라이드 7: 리스크 관리 -->
+        <div class="slide">
+            <h2>리스크 관리의 중요성</h2>
+            
+            <div class="warning">
+                <h3>⚠️ 트레이딩은 확률의 게임!</h3>
+                <p style="font-size: 1.15em;"><strong>언제나 떡락할 수 있다고 생각해야 됨.</strong></p>
+                <p style="font-size: 1.2em; color: #dc3545;"><strong>리스크 헷징이 가장 중요!</strong></p>
+            </div>
+            
+            <div class="highlight">
+                <h3>💡 분할 매수/분할 매도 - 비중 조절이 중요!</h3>
+                <ul style="font-size: 1.1em;">
+                    <li><strong>한 종목 진입시 본인 시드(예산)의 5~10%로 한다.</strong></li>
+                    <li><strong>한 종목 진입시에도 분할 매수/매도로 대응한다. (5~10구간)</strong></li>
+                    <li><strong>적어도 10종목 이상으로 진입.</strong></li>
+                </ul>
+            </div>
+            
+            <div class="success">
+                <h4>📌 예시</h4>
+                <p style="font-size: 1.1em;">100만원이면 10만원씩 10종목에 진입한다.</p>
+            </div>
+        </div>
+
+        <!-- 슬라이드 8: 손매매 vs 자동매매 -->
+        <div class="slide">
+            <h2>손매매 vs 자동매매</h2>
+            <p style="margin-bottom: 25px; font-size: 1.1em;">손매매와 자동매매의 차이점과 장단점</p>
+            
+            <div class="comparison">
+                <div class="comparison-box">
+                    <h3>👨‍💻 손매매</h3>
+                    <ul>
+                        <li>✅ 시장 상황에 유연한 대응 가능 (폭락/폭등, 정치/경제적 이슈)</li>
+                        <li>❌ 감정적 판단 개입 위험</li>
+                        <li>❌ 24시간 모니터링 어려움</li>
+                    </ul>
+                </div>
+                <div class="comparison-box">
+                    <h3>🤖 자동매매</h3>
+                    <ul>
+                        <li>✅ 감정 배제, 일관된 전략 실행 (탐욕, 공포 심리 제거)</li>
+                        <li>✅ 24시간 자동 거래</li>
+                        <li>✅ 여러 종목 동시 모니터링 가능</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 슬라이드 9: 트레이딩에 실패하도록 설계된 두뇌 메커니즘 -->
+        <div class="slide">
+            <h2>트레이딩에 실패하도록 설계된 두뇌 메커니즘</h2>
+            
+            <div class="brain-section">
+                <h4>1. 감정의 뇌 (공포와 탐욕)</h4>
+                <p><strong>공포 (Fear):</strong> 주가가 폭락하면(위험 감지), 이성적인 분석 대신 본능적인 공포(FUD)에 휩싸여 '패닉 셀'(투매)을 하게 됩니다.</p>
+                <p><strong>탐욕 (Greed):</strong> 주가가 급등하면(기회 감지), 이성적인 고점 판단 대신 "나만 뒤처진다"는 탐욕(FOMO)에 휩싸여 '추격 매수'를 하게 됩니다.</p>
+            </div>
+            
+            <div class="brain-section">
+                <h4>2. '손실 회피' 편향 (손실의 고통)</h4>
+                <p><strong>손절매 실패:</strong> 주가 하락 시, '손실을 확정'하는 고통을 피하려는 '본전 심리' 때문에 매도를 미루다가 손실을 더욱 키웁니다.</p>
+                <p><strong>빠른 익절:</strong> 반대로 주가가 조금만 올라도, 그 이익이 다시 '손실'로 바뀔까 봐 두려워(고통 회피) 너무 빨리 팔아버립니다.</p>
+                <p style="color: #dc3545;"><strong>결과: 손실은 길게, 이익은 짧게</strong></p>
+            </div>
+            
+            <div class="brain-section">
+                <h4>3. '도파민' 중독 (예측 불가능한 보상)</h4>
+                <p>어쩌다 한 번 얻은 큰 수익(쾌감)을 뇌가 기억하고, 그 쾌감을 다시 느끼기 위해 이성적 분석 없이 더 자주, 더 큰 금액을 베팅(오버 트레이딩)하게 됩니다.</p>
+                <p>손실이 발생해도 "다음 한 번만 성공하면 만회할 수 있다"는 <strong>'도박사의 오류'</strong>에 빠져 중독적인 매매를 이어갑니다.</p>
+            </div>
+            
+            <div class="brain-section">
+                <h4>4. '집단 심리' (무리 짓는 본능)</h4>
+                <p><strong>FOMO (Fear Of Missing Out):</strong> "나만 빼고 다 돈 버는 것 같다"는 군중 심리에 휩쓸려, 이미 과열된 자산(밈 주식, 특정 코인)의 고점에 맹목적으로 동참 매수합니다.</p>
+                <p><strong>확증 편향 (Confirmation Bias):</strong> 내가 매수한 자산에 대해 긍정적인 정보(유튜브, 커뮤니티 글)만 찾아보며 스스로를 안심시키고, 명백한 위험 신호나 반대 의견은 외면합니다.</p>
+            </div>
+        </div>
+
+        <!-- 슬라이드 10: 그리드 매매 전략 -->
+        <div class="slide">
+            <h2>알찬 자동매매 전략 - 그리드 매매</h2>
+            
+            <div class="grid-section">
+                <h3>📊 그리드 매매란?</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>일정 가격 구간 설정</li>
+                    <li><strong>하락 시 자동 매수</strong> / <strong>상승 시 자동 매도</strong></li>
+                    <li>박스권 장세에서 효과적</li>
+                </ul>
+            </div>
+            
+            <div class="success">
+                <h3>✨ 핵심 장점</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>변동성을 이용한 꾸준한 수익</li>
+                    <li>자동 분할 매수·매도로 위험 분산</li>
+                    <li>초보자도 쉽게 시작 가능</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 슬라이드 11: 수익률 공개 -->
+        <div class="slide">
+            <h2>자동매매 수익률 공개</h2>
+            
+            <div class="highlight">
+                <h3>📈 실제 운영 결과</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>실제 운영 봇의 거래 내역</li>
+                    <li>월별 수익률 추이 분석</li>
+                    <li>손실 구간 관리 방법</li>
+                </ul>
+            </div>
+            
+            <div class="info" style="margin-top: 20px; text-align: center; padding: 30px;">
+                <p style="font-size: 1.3em;">💡 실전 수익률 데이터를 통해</p>
+                <p style="font-size: 1.3em;">자동매매의 실제 성과를 확인하실 수 있습니다</p>
+            </div>
+        </div>
+
+        <!-- 슬라이드 12: 특별선물 -->
+        <div class="slide">
+            <h2>🎁 특별 선물</h2>
+            
+            <div class="success" style="margin-bottom: 30px;">
+                <h3 style="color: #28a745;">📚 인프런 강의 - 40% 할인 쿠폰</h3>
+                <p style="font-size: 1.2em; margin: 15px 0;">안정적인 수익 내는 코인 자동매매 봇 만들기 - 그리드전략 편</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASIAAAEiAQAAAAB1xeIbAAAB2klEQVR4nO2ZwW3jMBBF3ywF7JHqIKXQHWxJqWk7EEtJAQGkowEKP4chbSOX5CLLtsiDINEP0Ac9+Bx9mvh55D+/gKBTnXoiarE6TssA2cwAaLPDXroOQQVJkoDV7H0OshNAkiTN++k6BlXLO0rkcbX622Jmp111HYxKkmAZ7vfGTgEsZuTxnm88NOX13RrNUMj/1kEsAFHgd4+q/rmpAbgYPGDp468s/QeyT4dddB2BQjdjDgKCNLXex8f0qOqfnvJ2ZvULSQV7n9fa2ufe329G1X4mj5/ous3mN2HET9Neuo5AueeQVOrH1BQL1XNmIM2he85GFJJKu5vbXwFBpPbY134bqi12lNtLK/ngc1Kv+82o2z7nZtlpaz/R134ripqWxeLe7hfiZQ/odb8Z1Rwd0OQz1+Lvfr81tZgBQXaKBZLOZuZhZlCNdx5Y/RNT379rJZWbDbfvtdtS13OrWDAba3tpp511HYK6nFstZtK8epDs9p/fym66Xp3yTMEgFIiiRZru95A+hvK46l+L8hYnzTVTMOt1fx/qkmjauBp5XE3T0nPMrajv51aWx1AMmg8l7aPrKNTqbQ54fn+2FqOdrZ6aP7L656WGeizrQ+BRzvUudr/v1OtRX87SQsozDSYYAAAAAElFTkSuQmCC" alt="인프런 QR코드" style="width: 200px; height: 200px;">
+                    <p style="margin-top: 10px;"><a href="https://inf.run/6tJ5r" target="_blank" style="color: #28a745; text-decoration: none; font-weight: bold;">https://inf.run/6tJ5r</a></p>
+                </div>
+            </div>
+            
+            <div class="comparison" style="margin-top: 30px;">
+                <div class="comparison-box" style="border-left: 4px solid #dc3545;">
+                    <h3 style="color: #dc3545;">📺 유튜브 채널</h3>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXIAAAFyAQAAAADAX2ykAAAC00lEQVR4nO2bXYrcMAyAPzWBPiYwB+hRvDfbM+0NkqPMAQrO44CD+iDZM7OlnS6ks8kiPZjE/h4Ewrb+LMpHZP72IRyCDz74/8ov4vKy9DCLD/LCKvbl0j9Hn+A35HugKwAIrELKow06S6cwZEgTwHJ6gj7Bb8ujmjsFOiWp+pcNg/pcykDKneq0N/2D/yCftEDSi+i0iJ3Pn6pP8NvxiwjzuArziG3Yz9Un+I14VS0AnepkAzCPq+g0FGBQn9up/sH/SXpgleu/pHNfJJ2/q6R8KpLOfWE2oHuCPsFvy6M30jwtXyjuVV0l/Kvj8YuIvLDaQNKLkLRg4TCsHvrOEf8ekPf4dxbQebxdUSi9zw35WfoEvy1f49+rG2VDsQVbTfUrzuej8Xb/ghnUb10fMpC02jzu3yPybt+WptIJsCBJM9ASWx447U3/4B+I7dqJtnWzm9YC3pTBMpWEfQ/Ie3w0DYV3ueYb06Zm+LDvwfhqt+pa0eJfty/tuI7794B8D8NFFNYe6ItakfBtBAYFllMRhp+iLKeyP/2DfyB3ERCtflSdaNvTQ8tO703/4B+IWzUDrep7PZDNtBH/Hpav/hVdc7JKTT3X/PNNEjrsezC+5jeA2r8BXhXETRv+83H5mt/IXvWt7rRfvTrRxf17YL6HZbRPSbp6OTide8Tj3wx2MUd/3QH5m/P59lQ217k4MtHu6b3pH/wDuY2K6l1rCWe9JrFoKZC96R/8A3nfv5G0YOUkLzLUdHT4V0fkqWUi7mqBdetG/fcL8C2XsfTIa16F+cfFe+7mEXSi9szuUv/g/yJ37xfK+znviiX275fga0LDu64ugps29u9X4FvD5GvG3GmxR4Rje8mwa/2D/03sddH1HYrOY1cEVtFZgPQ22sNCTfoMfYLflr9/v7AKSf1XoCsC4KXfqP8ekO+9jG+i4P0b2iaU2j1bnqBP8MEH/+/yC8v3fW102r5WAAAAAElFTkSuQmCC" alt="유튜브 QR코드" style="width: 150px; height: 150px;">
+                        <p style="margin-top: 10px; font-size: 0.9em;"><a href="https://www.youtube.com/@자동매매로쉽게돈벌기" target="_blank" style="color: #dc3545; text-decoration: none;">자동매매로쉽게돈벌기</a></p>
+                    </div>
+                </div>
+                
+                <div class="comparison-box" style="border-left: 4px solid #03c75a;">
+                    <h3 style="color: #03c75a;">☕ 네이버 카페</h3>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUoAAAFKAQAAAABTUiuoAAACYklEQVR4nO2bQcrbMBCFv6kEWcrwHyBHkW/QI5XezDpKDlCQlwGZ14XkxNmUbP5aEM0qRt/iwTCeeSPHxJuRfrxLwkAHOtAfsFqLGbB5NTObNjObYD/ynWgdKE6SJFg9EAqweqSbhyhJyt1oHSi06gkFLatHS9Dez9ZWdN1oHWiLmhknm9mMdC3/W8BA/x3++BCKFxSU5osM/Eu6Ttc60IpKat2KZB6i7kbMAEHS8u0CBvo2utW5D3CyXxlsXi+tbyWzOh12ovWzUQ/haZDvh26lNDmO3vl0rQN9+C1fB0MtgJZwNwh3I02bkaZetH44uresh+lq3WqfL2J2krKTltO1DrS6Y2Le7Gm6AJCyUyurUL5VwEDfjVY4QXtkqD+WR96WoFFbPaCHN2F9CcbstB9I9TRqZKsLtGUrZtqA8SiwPUbf6gd91Ba0AQMnLTgRJRFHbXWEcmxUtA7W0lOBvauNbJ2PesDV4rKozSCAYPMiZIBt30GdrnWgDU1mpt92EfFmZvPqsbmupC77xVcvWj8YfezgXbEoEBRPuhYv2FCaYfitXtBmgqPK63ToVNfvTzc2+tb5aMsWYU+Unn4rA+BEHTVO1zrQhwl+WWPUiqpWCxjZ6gd9+eap3kamads/gQKq6epC64ejxwm+3nSFjMX8VQxArK6QzJUOtA60zoRWU7Z+FWt+625inQxwWHVep2sd6Cu62cFv2VWSdLfht/pFQ4F0LXXJe7zz6lDrZ6KHa5P6mW52It48WkLLWzdaPxn1wGb702aAK0b445V+3o14u8jGnrAT1MY/ggY60G9B/wLSuJEcO5lSqAAAAABJRU5ErkJggg==" alt="카페 QR코드" style="width: 150px; height: 150px;">
+                        <p style="margin-top: 10px; font-size: 0.9em;"><a href="https://cafe.naver.com/coinrobotkr" target="_blank" style="color: #03c75a; text-decoration: none;">코인로봇 카페</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 슬라이드 13: 마무리 -->
+        <div class="slide intro">
+            <h1>질의 응답 및 마무리</h1>
+
+            <div class="highlight" style="background: rgba(255, 193, 7, 0.25); border-left: 4px solid #ffc107; margin: 30px 0;">
+                <h3 style="color: #ffc107;">💬 궁금하신 점 질문해주세요</h3>
+            </div>
+
+            <div class="warning" style="background: rgba(220, 53, 69, 0.25); border-left: 4px solid #dc3545; margin: 30px 0;">
+                <h3 style="color: #ff6b6b;">⚠️ 실전 투자 시 주의사항</h3>
+                <ul style="color: #e2e8f0; font-size: 1.1em;">
+                    <li>반드시 여유 자금으로 투자</li>
+                    <li>리스크 관리를 최우선으로</li>
+                    <li>감정적 판단 배제</li>
+                    <li>꾸준한 학습과 전략 개선</li>
+                </ul>
+            </div>
+
+            <p style="text-align: center; margin-top: 40px; font-size: 2em; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">감사합니다! 🙏</p>
+        </div>
+    </div>
+</body>
+</html>
